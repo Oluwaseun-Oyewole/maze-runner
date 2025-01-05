@@ -9,7 +9,7 @@ export default function generateRandomMaze(board_size: number = 20) {
   return board_dimension;
 }
 
-type Mode = "Easy" | "Medium" | "Hard";
+export type ModeType = "Easy" | "Medium" | "Hard";
 
 function getRandomColor(): string {
   // Generate a random hex color
@@ -21,7 +21,7 @@ function getRandomColor(): string {
   return color;
 }
 
-export const getColorsByMode = (mode: Mode): string[] => {
+export const getColorsByMode = (mode: ModeType): string[] => {
   let colorCount: number;
 
   switch (mode) {
@@ -44,4 +44,19 @@ export const getColorsByMode = (mode: Mode): string[] => {
   }
 
   return colors;
+};
+
+export const resizeModeGrid = (mode: ModeType) => {
+  switch (mode) {
+    case "Easy":
+      return "repeat(25, 1fr)";
+    case "Medium":
+      return "repeat(35, 1fr)";
+    default:
+      return "repeat(45, 1fr)";
+  }
+};
+
+export const getRandomIndex = () => {
+  return Math.floor(Math.random() * (6 - 0) + 0);
 };

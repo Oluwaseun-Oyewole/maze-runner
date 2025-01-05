@@ -1,7 +1,11 @@
 import { ChangeEvent, useState } from "react";
-import generateRandomMaze, { getColorsByMode } from "./utils";
+import generateRandomMaze, {
+  getColorsByMode,
+  getRandomIndex,
+  ModeType,
+  resizeModeGrid,
+} from "./utils";
 
-type ModeType = "Easy" | "Medium" | "Hard";
 function App() {
   const [dimensions, setDimensions] = useState(generateRandomMaze());
   const [selectMode, setSelectMode] = useState<ModeType>("Easy");
@@ -10,39 +14,20 @@ function App() {
   function resizeMaze(mode: ModeType) {
     switch (mode) {
       case "Easy":
-        return setDimensions(generateRandomMaze(20));
-      case "Medium":
         return setDimensions(generateRandomMaze(25));
-      default:
-        return setDimensions(generateRandomMaze(28));
-    }
-  }
-
-  console.log("color mode", colors);
-
-  function resizeModeGrid(mode: ModeType) {
-    switch (mode) {
-      case "Easy":
-        return "repeat(20, 1fr)";
       case "Medium":
-        return "repeat(30, 1fr)";
+        return setDimensions(generateRandomMaze(30));
       default:
-        return "repeat(40, 1fr)";
+        return setDimensions(generateRandomMaze(35));
     }
   }
+
   const selectHandler = (e: ChangeEvent<HTMLSelectElement>) => {
     setSelectMode(e.target.value as ModeType);
     resizeMaze(e.target.value as ModeType);
     setColor(getColorsByMode(e.target.value as ModeType));
   };
 
-  const getRandomIndex = () => {
-    return Math.floor(Math.random() * (6 - 0) + 0);
-  };
-
-  console.log("random", getRandomIndex());
-
-  console.log("mazingg", dimensions);
   return (
     <main
       className="relative flex-col h-screen w-full text-white flex items-center justify-center overflow-x-hidden"
@@ -75,7 +60,7 @@ function App() {
                 <li
                   key={index}
                   className={`${
-                    col === 0 ? "" : "border-2 w-8 h-8 border-gray-400"
+                    col === 0 ? "" : "border-2 w-6 h-6 border-gray-400"
                   } flex  items-center justify-center`}
                 >
                   {/* {col} */}
