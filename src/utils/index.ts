@@ -1,7 +1,7 @@
-export default function generateRandomMaze(board_size: number = 20) {
+export default function generateRandomMaze(board_size: number = 15) {
   const board_dimension = Array.from({ length: board_size }, () =>
     Array.from({ length: board_size }, () =>
-      Math.floor(Math.random() > 0.5 ? 1 : 0)
+      Math.floor(Math.random() > 0.7 ? 1 : 0)
     )
   );
   board_dimension[0][0] = 0;
@@ -26,13 +26,13 @@ export const getColorsByMode = (mode: ModeType): string[] => {
 
   switch (mode) {
     case "Easy":
-      colorCount = 3; // Few colors
+      colorCount = 3;
       break;
     case "Medium":
-      colorCount = 6; // Moderate colors
+      colorCount = 6;
       break;
     case "Hard":
-      colorCount = 9; // More colors
+      colorCount = 9;
       break;
     default:
       throw new Error("Invalid mode");
@@ -49,11 +49,11 @@ export const getColorsByMode = (mode: ModeType): string[] => {
 export const resizeModeGrid = (mode: ModeType) => {
   switch (mode) {
     case "Easy":
-      return "repeat(25, 1fr)";
+      return "repeat(15, 1fr)";
     case "Medium":
-      return "repeat(35, 1fr)";
+      return "repeat(17, 1fr)";
     default:
-      return "repeat(45, 1fr)";
+      return "repeat(20, 1fr)";
   }
 };
 
