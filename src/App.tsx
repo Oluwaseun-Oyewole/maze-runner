@@ -16,13 +16,13 @@ const directions = {
 function App() {
   const [dimensions, setDimensions] = useState(generateRandomMaze());
   const [selectMode, setSelectMode] = useState<ModeType>("Easy");
-  const [colors, setColors] = useState<string[]>(getColorsByMode(selectMode));
+  const [colors, ,] = useState<string[]>(getColorsByMode(selectMode));
   const [positions, setPositions] = useState({
     start: [0, 0],
     end: [dimensions?.length - 1, dimensions.length - 1],
   });
   const [steps, setSteps] = useState(0);
-  const [gameWon, setGameWon] = useState(true);
+  const [gameWon, setGameWon] = useState(false);
 
   function walkingThroughMaze(direction: keyof typeof directions) {
     if (gameWon) return;
@@ -96,23 +96,26 @@ function App() {
   const selectHandler = (e: ChangeEvent<HTMLSelectElement>) => {
     setSelectMode(e.target.value as ModeType);
     resizeMaze(e.target.value as ModeType);
-    setColors(getColorsByMode(e.target.value as ModeType));
+    handleGameReset(e.target.value as ModeType);
+    // setColors(getColorsByMode(e.target.value as ModeType));
   };
 
   return (
     <main
       className="relative bg-gray-800 flex-col h-screen w-full text-white flex items-center justify-center overflow-x-hidden"
-      // style={{ backgroundColor: colors[getRandomIndex()] }}
+      style={{ backgroundColor: colors[getRandomIndex()] }}
     >
+      {/* {formatTime(time)} */}
       <section className="max-w-[1300px] mx-auto">
         <div
           className={`pb-5 flex items-center justify-between ${
-            gameWon ? "z-0" : "z-50"
+            gameWon ? "z-0 opacity-30" : "z-50"
           } relative`}
         >
           <select
             name=""
             id=""
+            disabled={gameWon}
             value={selectMode}
             onChange={selectHandler}
             className="bg-black text-white border-2 border-gray-800 rounded py-2 w-[130px] px-2"
@@ -121,9 +124,9 @@ function App() {
             <option>Medium</option>
             <option>Hard</option>
           </select>
-          <p>Steps moved - {steps}</p>
           <button
-            className="bg-gray-800 text-sm px-5 py-3 rounded-lg"
+            disabled={gameWon}
+            className="bg-gray-800 text-sm px-4 py-2 rounded-lg border-2 border-gray-300"
             onClick={() => handleGameReset(selectMode)}
           >
             Reset Game
@@ -131,12 +134,13 @@ function App() {
         </div>
 
         <div
-          className={`fixed bg-gray-900 rounded-md  top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] flex items-center justify-center transition-all flex-col eas-in-out duration-500 ${
+          className={`fixed bg-gray-900 rounded-md top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[40%] h-[50vh] flex items-center justify-center transition-all flex-col eas-in-out duration-500 ${
             gameWon ? "opacity-80" : "opacity-0"
           }`}
+          onClick={() => handleGameReset(selectMode)}
         >
           <h1>You Win</h1>
-          <h1></h1>
+          <p>Steps- You moved {steps} times</p>
           <button
             className="bg-green-900 px-7 py-2 rounded-md block mt-3"
             onClick={() => handleGameReset(selectMode)}
@@ -146,11 +150,17 @@ function App() {
         </div>
 
         <ul
-          className="border-2 border-gray-300 bg-gray-900"
+          className={`border-2 border-gray-300 ${
+            selectMode === "Easy"
+              ? "bg-gray-900"
+              : selectMode === "Medium"
+              ? "bg-red-900"
+              : "bg-green-900"
+          }`}
           style={{
             display: "grid",
             gridTemplateColumns: resizeModeGrid(selectMode),
-            backgroundColor: colors[getRandomIndex()],
+            // backgroundColor: colors[getRandomIndex()],
           }}
         >
           {dimensions?.map((dimension, rowIndex) => {
@@ -170,7 +180,11 @@ function App() {
                   } ${
                     positions?.end[0] === rowIndex &&
                     positions?.end[0] === colIndex &&
-                    "bg-yellow-300"
+                    gameWon === false
+                      ? "bg-yellow-300"
+                      : gameWon
+                      ? "bg-blue-500"
+                      : ""
                   } 
                
                   `}
@@ -179,6 +193,14 @@ function App() {
             });
           })}
         </ul>
+
+        <div
+          className={`text-center pt-2 ${
+            gameWon ? "opacity-30" : "opacity-100"
+          }`}
+        >
+          <p>Navigate the maze with your arrow keys</p>
+        </div>
       </section>
     </main>
   );

@@ -5,7 +5,11 @@ export default function generateRandomMaze(board_size: number = 15) {
     )
   );
   board_dimension[0][0] = 0;
+  board_dimension[0][1] = 0;
+  board_dimension[1][0] = 0;
   board_dimension[board_dimension.length - 1][board_dimension.length - 1] = 0;
+  board_dimension[board_dimension.length - 2][board_dimension.length - 2] = 0;
+  board_dimension[board_dimension.length - 3][board_dimension.length - 3] = 0;
   return board_dimension;
 }
 
