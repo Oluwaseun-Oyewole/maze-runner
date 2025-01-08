@@ -6,13 +6,25 @@ export default function generateRandomMaze(board_size: number = 15) {
   );
   board_dimension[0][0] = 0;
   board_dimension[0][1] = 0;
-  board_dimension[1][0] = 0;
+  board_dimension[1][1] = 0;
+  board_dimension[3][3] = 0;
   board_dimension[board_dimension.length - 1][board_dimension.length - 1] = 0;
+  board_dimension[board_dimension.length - 1][board_dimension.length - 2] = 0;
   board_dimension[board_dimension.length - 2][board_dimension.length - 2] = 0;
-  board_dimension[board_dimension.length - 3][board_dimension.length - 3] = 0;
+  board_dimension[board_dimension.length - 2][board_dimension.length - 4] = 0;
   return board_dimension;
 }
 
+export const randomMazeBoolean = (mode: ModeType) => {
+  switch (mode) {
+    case "Easy":
+      return new Array(15).fill("").map(() => new Array(15).fill(false));
+    case "Medium":
+      return new Array(17).fill("").map(() => new Array(17).fill(false));
+    default:
+      return new Array(20).fill("").map(() => new Array(20).fill(false));
+  }
+};
 export type ModeType = "Easy" | "Medium" | "Hard";
 
 function getRandomColor(): string {
@@ -48,17 +60,6 @@ export const getColorsByMode = (mode: ModeType): string[] => {
   }
 
   return colors;
-};
-
-export const resizeModeGrid = (mode: ModeType) => {
-  switch (mode) {
-    case "Easy":
-      return "repeat(15, 1fr)";
-    case "Medium":
-      return "repeat(17, 1fr)";
-    default:
-      return "repeat(20, 1fr)";
-  }
 };
 
 export const getRandomIndex = () => {

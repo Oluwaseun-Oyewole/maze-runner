@@ -1,10 +1,5 @@
 import { ChangeEvent, useEffect, useState } from "react";
-import generateRandomMaze, {
-  getColorsByMode,
-  getRandomIndex,
-  ModeType,
-  resizeModeGrid,
-} from "./utils";
+import generateRandomMaze, { ModeType, randomMazeBoolean } from "./utils";
 
 const directions = {
   ArrowUp: [-1, 0],
@@ -14,22 +9,28 @@ const directions = {
 };
 
 function App() {
-  const [dimensions, setDimensions] = useState(generateRandomMaze());
+  const [dimensions, setDimensions] = useState(generateRandomMaze);
   const [selectMode, setSelectMode] = useState<ModeType>("Easy");
-  const [colors, ,] = useState<string[]>(getColorsByMode(selectMode));
   const [positions, setPositions] = useState({
     start: [0, 0],
     end: [dimensions?.length - 1, dimensions.length - 1],
   });
   const [steps, setSteps] = useState(0);
   const [gameWon, setGameWon] = useState(false);
+  const [isRevealed, setIsRevealed] = useState(randomMazeBoolean(selectMode));
 
   function walkingThroughMaze(direction: keyof typeof directions) {
     if (gameWon) return;
+    const newRevealed = [...isRevealed];
     const [x, y] = directions[direction];
     const [x0, y0] = positions.start;
     const currentPositionX = x + x0;
     const currentPositionY = y + y0;
+    if (dimensions[currentPositionX][currentPositionY] === 1) return;
+
+    newRevealed[0][0] = true;
+    newRevealed[currentPositionX][currentPositionY] = true;
+    setIsRevealed([...newRevealed]);
 
     if (
       currentPositionX >= 0 &&
@@ -57,20 +58,15 @@ function App() {
       return { ...prev, end: [dimensions?.length - 1, dimensions.length - 1] };
     });
   }, [dimensions]);
+
   useEffect(() => {
     const handleKeyboardMovement = (event: KeyboardEvent) => {
       if (event.key in directions)
         walkingThroughMaze(event.key as keyof typeof directions);
     };
-
     document.addEventListener("keydown", handleKeyboardMovement);
     return () =>
       document.removeEventListener("keydown", handleKeyboardMovement);
-  }, [positions.start]);
-
-  useEffect(() => {
-    const [x, y] = positions.start;
-    dimensions[x][y] = 1;
   }, [positions.start]);
 
   function resizeMaze(mode: ModeType) {
@@ -91,22 +87,18 @@ function App() {
     });
     setSteps(0);
     setGameWon(false);
+    setIsRevealed(randomMazeBoolean(mode));
   };
 
   const selectHandler = (e: ChangeEvent<HTMLSelectElement>) => {
     setSelectMode(e.target.value as ModeType);
     resizeMaze(e.target.value as ModeType);
     handleGameReset(e.target.value as ModeType);
-    // setColors(getColorsByMode(e.target.value as ModeType));
   };
 
   return (
-    <main
-      className="relative bg-gray-800 flex-col h-screen w-full text-white flex items-center justify-center overflow-x-hidden"
-      style={{ backgroundColor: colors[getRandomIndex()] }}
-    >
-      {/* {formatTime(time)} */}
-      <section className="max-w-[1300px] mx-auto">
+    <main className="relative bg-gray-800 flex-col h-screen w-full text-white flex items-center justify-center overflow-x-hidden">
+      <section className="px-10 lg:max-w-[1300px] lg:mx-auto">
         <div
           className={`pb-5 flex items-center justify-between ${
             gameWon ? "z-0 opacity-30" : "z-50"
@@ -134,9 +126,15 @@ function App() {
         </div>
 
         <div
-          className={`fixed bg-gray-900 rounded-md top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[40%] h-[50vh] flex items-center justify-center transition-all flex-col eas-in-out duration-500 ${
+          className={`fixed bg-gray-900 rounded-md top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center transition-all flex-col eas-in-out duration-500 ${
             gameWon ? "opacity-80" : "opacity-0"
-          }`}
+          } ${
+            selectMode === "Easy"
+              ? "h-[60vh] w-[36%]"
+              : selectMode === "Medium"
+              ? "h-[70vh] w-[40%]"
+              : "h-[80vh] w-[45%]"
+          } `}
           onClick={() => handleGameReset(selectMode)}
         >
           <h1>You Win</h1>
@@ -155,13 +153,16 @@ function App() {
               ? "bg-gray-900"
               : selectMode === "Medium"
               ? "bg-red-900"
-              : "bg-green-900"
-          }`}
-          style={{
-            display: "grid",
-            gridTemplateColumns: resizeModeGrid(selectMode),
-            // backgroundColor: colors[getRandomIndex()],
-          }}
+              : "bg-yellow-900"
+          } grid ${
+            selectMode === "Easy"
+              ? "grid-cols-easy-responsive md:grid-cols-easy"
+              : selectMode === "Medium"
+              ? "grid-cols-medium"
+              : "grid-cols-hard"
+          }
+          
+          `}
         >
           {dimensions?.map((dimension, rowIndex) => {
             return dimension?.map((col, colIndex) => {
@@ -183,10 +184,10 @@ function App() {
                     gameWon === false
                       ? "bg-yellow-300"
                       : gameWon
-                      ? "bg-blue-500"
+                      ? "bg-blue-900"
                       : ""
                   } 
-               
+                  ${isRevealed[rowIndex][colIndex] && "bg-yellow-500"}
                   `}
                 />
               );
@@ -194,13 +195,14 @@ function App() {
           })}
         </ul>
 
-        <div
-          className={`text-center pt-2 ${
+        <ul
+          className={`text-center pt-4 ${
             gameWon ? "opacity-30" : "opacity-100"
           }`}
         >
-          <p>Navigate the maze with your arrow keys</p>
-        </div>
+          <li>Navigate the maze with your arrow keys</li>
+          <li>You can only move once through the maze</li>
+        </ul>
       </section>
     </main>
   );
